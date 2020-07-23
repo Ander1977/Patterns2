@@ -7,9 +7,7 @@ import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.open;
-
-import static ru.netology.DataGenerator.RegistrationInfo.generateUserInfo;
-import static ru.netology.DataGenerator.RegistrationInfo.setUpUser;
+import static ru.netology.DataGenerator.RegistrationInfo.*;
 
 public class ApiTest {
 
@@ -21,34 +19,37 @@ public class ApiTest {
     }
 
     @Test
-    public void shouldUserActive() {
-        UserInfo user = generateUserInfo("ru", false);
-        setUpUser(user);
+    public void shouldLoginWithValidActiveUser() {
+        UserInfo user = generateValidUserInfo("en", false);
         loginPage(user.getLogin(), user.getPassword());
         $(byText("Личный кабинет")).waitUntil(visible, 15000);
     }
 
     @Test
-    public void shouldUserBlocked() {
-        UserInfo user = generateUserInfo("ru", true);
-        setUpUser(user);
+    public void shouldGetErrorIfNotRegisteredUser() {
+        UserInfo user = generateUserInfo("en", false);
+        loginPage(user.getLogin(), user.getPassword());
+        $(withText("Неверно указан логин или пароль")).waitUntil(visible, 15000);
+    }
+
+    @Test
+    public void shouldGetErrorIfUserBlocked() {
+        UserInfo user = generateValidUserInfo("en", true);
         loginPage(user.getLogin(), user.getPassword());
         $(withText("Пользователь заблокирован")).waitUntil(visible, 15000);
     }
 
     @Test
-    public void shouldUsernameNotCorrect() {
-        UserInfo user = generateUserInfo("ru", false);
-        setUpUser(user);
-        loginPage(DataGenerator.RegistrationInfo.userName("ru"), user.getPassword());
+    public void shouldGetErrorIfInvalidLogin() {
+        UserInfo user = generateInvalidLoginUserInfo("en", false);
+        loginPage(user.getLogin(), user.getPassword());
         $(withText("Неверно указан логин или пароль")).waitUntil(visible, 15000);
     }
 
     @Test
-    public void shouldPasswordNotCorrect() {
-        UserInfo user = generateUserInfo("ru", false);
-        setUpUser(user);
-        loginPage(user.getLogin(), DataGenerator.RegistrationInfo.userPassword("ru"));
+    public void shouldGetErrorIfInvalidPassword() {
+        UserInfo user = generateInvalidPasswordUserInfo("en", false);
+        loginPage(user.getLogin(), user.getPassword());
         $(withText("Неверно указан логин или пароль")).waitUntil(visible, 15000);
     }
 }
